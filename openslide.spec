@@ -5,33 +5,36 @@
 Summary:	C library for reading virtual slides
 Summary(pl.UTF-8):	Biblioteka C do odczytu wirtualnych slajdów
 Name:		openslide
-Version:	3.4.1
-Release:	2
+Version:	4.0.0
+Release:	1
 License:	LGPL v2.1
 Group:		Libraries
 #Source0Download: https://github.com/openslide/openslide/releases/
 Source0:	https://github.com/openslide/openslide/releases/download/v%{version}/%{name}-%{version}.tar.xz
-# Source0-md5:	ad9fa84775ed6b505d6f50bf6420c6bf
+# Source0-md5:	d2e8222659f5a17f22168f846277db14
 URL:		https://openslide.org/
-BuildRequires:	autoconf >= 2.61
-BuildRequires:	automake >= 1:1.11.1
 BuildRequires:	cairo-devel >= 1.2
 BuildRequires:	gdk-pixbuf2-devel >= 2.14
-BuildRequires:	glib2-devel >= 1:2.16
+BuildRequires:	glib2-devel >= 1:2.56
+BuildRequires:	libdicom-devel >= 1.0.0
 BuildRequires:	libjpeg-devel
 BuildRequires:	libpng-devel >= 2:1.2.1
 BuildRequires:	libtiff-devel >= 4
-BuildRequires:	libtool >= 2:2.2.5
 BuildRequires:	libxml2-devel >= 2.0
+BuildRequires:	meson >= 0.53
+BuildRequires:	ninja >= 1.5
 BuildRequires:	openjpeg2-devel >= 2.1.0
 BuildRequires:	pkgconfig
+BuildRequires:	rpm-build >= 4.6
+BuildRequires:	rpmbuild(macros) >= 1.736
 BuildRequires:	sqlite3-devel >= 3.6.20
 BuildRequires:	tar >= 1:1.22
 BuildRequires:	xz
 BuildRequires:	zlib-devel
 Requires:	cairo >= 1.2
 Requires:	gdk-pixbuf2 >= 2.14
-Requires:	glib2 >= 1:2.16
+Requires:	glib2 >= 1:2.56
+Requires:	libdicom >= 1.0.0
 Requires:	libpng >= 2:1.2.1
 Requires:	openjpeg2 >= 2.1.0
 Requires:	sqlite3 >= 3.6.20
@@ -69,6 +72,18 @@ Static OpenSlide library.
 %description static -l pl.UTF-8
 Statyczna biblioteka OpenSlide.
 
+%package apidocs
+Summary:	API documentation for OpenSlide library
+Summary(pl.UTF-8):	Dokumentacja API biblioteki OpenSlide
+Group:		Documentation
+BuildArch:	noarch
+
+%description apidocs
+API documentation for OpenSlide library.
+
+%description apidocs -l pl.UTF-8
+Dokumentacja API biblioteki OpenSlide.
+
 %package tools
 Summary:	Command line tools for working with virtual slides
 Summary(pl.UTF-8):	Narzędzia linii poleceń do pracy z wirtualnymi slajdami
@@ -85,25 +100,15 @@ Narzędzia linii poleceń do pracy z wirtualnymi slajdami.
 %setup -q
 
 %build
-# rebuild ac/am/lt for as-needed to work
-%{__libtoolize}
-%{__aclocal} -I m4
-%{__autoconf}
-%{__autoheader}
-%{__automake}
-%configure \
-	--disable-silent-rules \
-	%{?with_static_libs:--enable-static}
-%{__make}
+%meson build \
+	%{!?with_static_libs:--default-library=shared}
+
+%ninja_build -C build
 
 %install
 rm -rf $RPM_BUILD_ROOT
 
-%{__make} install \
-	DESTDIR=$RPM_BUILD_ROOT
-
-# obsoleted by pkg-config
-%{__rm} $RPM_BUILD_ROOT%{_libdir}/libopenslide.la
+%ninja_install -C build
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -113,9 +118,9 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,root,root,755)
-%doc CHANGELOG.txt LICENSE.txt README.txt
+%doc CHANGELOG.md README.md
 %attr(755,root,root) %{_libdir}/libopenslide.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libopenslide.so.0
+%attr(755,root,root) %ghost %{_libdir}/libopenslide.so.1
 
 %files devel
 %defattr(644,root,root,755)
@@ -134,6 +139,12 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/openslide-quickhash1sum
 %attr(755,root,root) %{_bindir}/openslide-show-properties
 %attr(755,root,root) %{_bindir}/openslide-write-png
+%attr(755,root,root) %{_bindir}/slidetool
 %{_mandir}/man1/openslide-quickhash1sum.1*
 %{_mandir}/man1/openslide-show-properties.1*
 %{_mandir}/man1/openslide-write-png.1*
+%{_mandir}/man1/slidetool.1*
+
+%files apidocs
+%defattr(644,root,root,755)
+%doc doc/html/*
