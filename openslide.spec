@@ -6,7 +6,7 @@ Summary:	C library for reading virtual slides
 Summary(pl.UTF-8):	Biblioteka C do odczytu wirtualnych slajdów
 Name:		openslide
 Version:	4.0.0
-Release:	6
+Release:	7
 License:	LGPL v2.1
 Group:		Libraries
 #Source0Download: https://github.com/openslide/openslide/releases/
