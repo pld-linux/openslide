@@ -5,39 +5,40 @@
 Summary:	C library for reading virtual slides
 Summary(pl.UTF-8):	Biblioteka C do odczytu wirtualnych slajdów
 Name:		openslide
-Version:	4.0.0
-Release:	7
+Version:	4.0.1
+Release:	1
 License:	LGPL v2.1
 Group:		Libraries
 #Source0Download: https://github.com/openslide/openslide/releases/
 Source0:	https://github.com/openslide/openslide/releases/download/v%{version}/%{name}-%{version}.tar.xz
-# Source0-md5:	d2e8222659f5a17f22168f846277db14
+# Source0-md5:	d58965cebdc9849d7be2b07fbf246bf6
 URL:		https://openslide.org/
 BuildRequires:	cairo-devel >= 1.2
-BuildRequires:	gdk-pixbuf2-devel >= 2.14
 BuildRequires:	glib2-devel >= 1:2.56
-BuildRequires:	libdicom-devel >= 1.0.0
-BuildRequires:	libjpeg-devel
+BuildRequires:	libdicom-devel >= 1.3.0
+# or IJB libjpeg >= 9c
+BuildRequires:	libjpeg-turbo-devel >= 1.3
 BuildRequires:	libpng-devel >= 2:1.2.1
 BuildRequires:	libtiff-devel >= 4
 BuildRequires:	libxml2-devel >= 2.0
-BuildRequires:	meson >= 0.53
+BuildRequires:	meson >= 0.55
 BuildRequires:	ninja >= 1.5
 BuildRequires:	openjpeg2-devel >= 2.1.0
 BuildRequires:	pkgconfig
 BuildRequires:	rpm-build >= 4.6
 BuildRequires:	rpmbuild(macros) >= 2.042
-BuildRequires:	sqlite3-devel >= 3.6.20
+BuildRequires:	sqlite3-devel >= 3.14
 BuildRequires:	tar >= 1:1.22
 BuildRequires:	xz
 BuildRequires:	zlib-devel
+BuildRequires:	zstd-devel
 Requires:	cairo >= 1.2
-Requires:	gdk-pixbuf2 >= 2.14
 Requires:	glib2 >= 1:2.56
-Requires:	libdicom >= 1.0.0
+Requires:	libdicom >= 1.3.0
+Requires:	libjpeg-turbo >= 1.3
 Requires:	libpng >= 2:1.2.1
 Requires:	openjpeg2 >= 2.1.0
-Requires:	sqlite3 >= 3.6.20
+Requires:	sqlite3 >= 3.14
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %description
@@ -53,6 +54,17 @@ Summary:	Header files for OpenSlide library
 Summary(pl.UTF-8):	Pliki nagłówkowe biblioteki OpenSlide
 Group:		Development/Libraries
 Requires:	%{name} = %{version}-%{release}
+Requires:	cairo-devel >= 1.2
+Requires:	glib2-devel >= 1:2.56
+Requires:	libdicom-devel >= 1.3.0
+Requires:	libjpeg-turbo-devel >= 1.3
+Requires:	libpng-devel >= 2:1.2.1
+Requires:	libtiff-devel >= 4
+Requires:	libxml2-devel >= 2.0
+Requires:	openjpeg2-devel >= 2.1.0
+Requires:	sqlite3-devel >= 3.14
+Requires:	zlib-devel
+Requires:	zstd-devel
 
 %description devel
 Header files for OpenSlide library.
@@ -101,7 +113,9 @@ Narzędzia linii poleceń do pracy z wirtualnymi slajdami.
 
 %build
 %meson \
-	%{!?with_static_libs:--default-library=shared}
+	%{!?with_static_libs:--default-library=shared} \
+	-Ddoc=enabled \
+	-Dtest=disabled
 
 %meson_build
 
@@ -119,12 +133,12 @@ rm -rf $RPM_BUILD_ROOT
 %files
 %defattr(644,root,root,755)
 %doc CHANGELOG.md README.md
-%attr(755,root,root) %{_libdir}/libopenslide.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libopenslide.so.1
+%{_libdir}/libopenslide.so.*.*.*
+%ghost %{_libdir}/libopenslide.so.1
 
 %files devel
 %defattr(644,root,root,755)
-%attr(755,root,root) %{_libdir}/libopenslide.so
+%{_libdir}/libopenslide.so
 %{_includedir}/openslide
 %{_pkgconfigdir}/openslide.pc
 
